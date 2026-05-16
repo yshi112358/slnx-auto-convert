@@ -3,6 +3,8 @@
   "displayName": "SLNX auto-convert",
   "description": ".slnx 生成時に拡張機能内で .sln へ変換し .slnx を削除、dotnet.defaultSolution を更新します（Python 不要）。",
   "version": "0.1.0",
+  "license": "MIT",
+  "author": "Yuki Shimada",
   "publisher": "local",
   "icon": "images/icon.png",
   "engines": {
