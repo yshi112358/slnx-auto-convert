@@ -1,5 +1,14 @@
 # SLNX auto-convert
 
+<div align="center">
+	<img
+		src="./images/header.png"
+	 	alt="header"
+		width="400px"
+	 	height="auto"
+	/>
+</div>
+
 [English README](./README.md)
 
 Unity / Visual Studio が生成する **`.slnx`** を、VS Code / Cursor 上で従来の **`.sln`** に変換する拡張機能です。変換は **拡張機能内の TypeScript** で行うため、マシンに **Python は不要**です。
