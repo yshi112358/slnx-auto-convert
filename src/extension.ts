@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
-import { convertSlnxToSln } from "./convertSlnx";
+import { convertSlnxToSln, NoProjectsInSlnxError } from "./convertSlnx";
 
 const EXT = ".slnx";
 
@@ -25,9 +25,6 @@ function autoCreateVstuPatchDisableEnabled(): boolean {
   );
 }
 
-const UNITY_PATCH_HINT =
-  "Unity（Visual Studio Editor / vstuc）は .vstupatchdisable が無いと .vscode/settings.json の dotnet.defaultSolution を .slnx に合わせて上書きすることがあります。";
-
 async function updateDefaultSolution(
   folder: vscode.WorkspaceFolder,
   slnxUri: vscode.Uri,
@@ -41,7 +38,6 @@ async function updateDefaultSolution(
     .relative(folder.uri.fsPath, slnAbsPath)
     .replace(/\\/g, "/");
 
-  /* dotnet.defaultSolution は resource scope=workspace のみ（Folder Settings 非対応） */
   await vscode.workspace
     .getConfiguration("dotnet")
     .update(
@@ -65,17 +61,27 @@ async function updateDefaultSolution(
   const effective = vscode.workspace
     .getConfiguration("dotnet", folder.uri)
     .get<string>("defaultSolution");
+  const noneLabel = vscode.l10n.t("(none)");
   output.appendLine(
-    `[slnx-auto-convert] dotnet.defaultSolution の保存値（実効）: ${effective ?? "(なし)"} ← 期待: ${slnRelative}`
+    vscode.l10n.t(
+      "[slnx-auto-convert] Effective dotnet.defaultSolution: {0} ← expected: {1}",
+      effective ?? noneLabel,
+      slnRelative
+    )
   );
   if (effective !== slnRelative) {
+    const hint = vscode.l10n.t(
+      "Unity (Visual Studio Editor / vstuc) may overwrite dotnet.defaultSolution in .vscode/settings.json to match .slnx when .vstupatchdisable is missing."
+    );
     output.appendLine(
-      `[slnx-auto-convert] 実効値が期待と異なります。ユーザー設定の上書き、または Unity がまだパッチした可能性があります。${UNITY_PATCH_HINT}`
+      vscode.l10n.t(
+        "[slnx-auto-convert] Effective value differs from expected. User settings may override, or Unity may have patched again. {0}",
+        hint
+      )
     );
   }
 }
 
-/** マーカーが無いときだけ作成。.vscode ディレクトリも作る。 */
 async function ensureVstuPatchDisable(
   folder: vscode.WorkspaceFolder,
   output?: vscode.OutputChannel,
@@ -92,16 +98,24 @@ async function ensureVstuPatchDisable(
     path.relative(folder.uri.fsPath, marker) || ".vscode/.vstupatchdisable";
   if (created) {
     output?.appendLine(
-      `[slnx-auto-convert] Unity の .vscode 自動パッチ抑止のため ${rel} を作成しました`
+      vscode.l10n.t(
+        "[slnx-auto-convert] Created {0} to suppress Unity .vscode auto-patch.",
+        rel
+      )
     );
   } else {
-    output?.appendLine(`[slnx-auto-convert] ${rel} は既にあります`);
+    output?.appendLine(
+      vscode.l10n.t("[slnx-auto-convert] {0} already exists.", rel)
+    );
   }
   if (showNotification) {
     await vscode.window.showInformationMessage(
       created
-        ? `Unity の .vscode 自動パッチを無効化するマーカーを置きました（${rel}）。`
-        : `既に ${rel} があります。`
+        ? vscode.l10n.t(
+            "Placed a marker to disable Unity .vscode auto-patch ({0}).",
+            rel
+          )
+        : vscode.l10n.t("{0} already exists.", rel)
     );
   }
   return created;
@@ -151,24 +165,36 @@ async function processSlnxNow(
   }
 
   output.appendLine(
-    `[slnx-auto-convert] 変換開始: ${
+    vscode.l10n.t(
+      "[slnx-auto-convert] Converting: {0}",
       path.relative(folder.uri.fsPath, slnxUri.fsPath) || slnxUri.fsPath
-    }`
+    )
   );
   try {
     const n = convertSlnxToSln(slnxUri.fsPath, slnPath);
-    const slnRelative = path
-      .relative(folder.uri.fsPath, slnPath)
-      .replace(/\\/g, "/");
     fs.unlinkSync(slnxUri.fsPath);
     await updateDefaultSolution(folder, slnxUri, output);
     output.appendLine(
-      `[slnx-auto-convert] 完了（${n} プロジェクト）。.slnx を削除し dotnet.defaultSolution を更新しました。`
+      vscode.l10n.t(
+        "[slnx-auto-convert] Done ({0} projects). Removed .slnx and updated dotnet.defaultSolution.",
+        String(n)
+      )
     );
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    output.appendLine(`[slnx-auto-convert] エラー: ${msg}`);
-    void vscode.window.showErrorMessage(`SLNX 変換に失敗: ${msg}`);
+    const msg =
+      e instanceof NoProjectsInSlnxError
+        ? vscode.l10n.t(
+            "No projects found in {0}",
+            path.relative(folder.uri.fsPath, e.slnxAbsolutePath) ||
+              e.slnxAbsolutePath
+          )
+        : e instanceof Error
+          ? e.message
+          : String(e);
+    output.appendLine(vscode.l10n.t("[slnx-auto-convert] Error: {0}", msg));
+    void vscode.window.showErrorMessage(
+      vscode.l10n.t("SLNX conversion failed: {0}", msg)
+    );
   }
 }
 
@@ -195,7 +221,9 @@ async function convertAllInWorkspace(
 }
 
 export function activate(context: vscode.ExtensionContext): void {
-  const output = vscode.window.createOutputChannel("SLNX Auto Convert");
+  const output = vscode.window.createOutputChannel(
+    vscode.l10n.t("SLNX Auto Convert")
+  );
   context.subscriptions.push(output);
 
   const watchEnabled = () =>
@@ -271,7 +299,7 @@ export function activate(context: vscode.ExtensionContext): void {
         const folders = vscode.workspace.workspaceFolders;
         if (!folders?.length) {
           await vscode.window.showWarningMessage(
-            "ワークスペースフォルダがありません。"
+            vscode.l10n.t("No workspace folders are open.")
           );
           return;
         }
@@ -284,8 +312,11 @@ export function activate(context: vscode.ExtensionContext): void {
         }
         await vscode.window.showInformationMessage(
           created > 0
-            ? `.vscode/.vstupatchdisable を ${created} か所に作成しました（Unity の settings 自動パッチが止まります）。`
-            : "全フォルダに既に .vstupatchdisable があります。"
+            ? vscode.l10n.t(
+                "Created .vscode/.vstupatchdisable in {0} place(s). Unity settings auto-patch stops.",
+                String(created)
+              )
+            : vscode.l10n.t("All folders already have .vstupatchdisable.")
         );
         output.show(true);
       }

@@ -1,0 +1,19 @@
+{
+  "SLNX Auto Convert": "SLNX Auto Convert",
+  "(none)": "(なし)",
+  "Unity (Visual Studio Editor / vstuc) may overwrite dotnet.defaultSolution in .vscode/settings.json to match .slnx when .vstupatchdisable is missing.": "Unity（Visual Studio Editor / vstuc）は .vstupatchdisable が無いと .vscode/settings.json の dotnet.defaultSolution を .slnx に合わせて上書きすることがあります。",
+  "[slnx-auto-convert] Effective dotnet.defaultSolution: {0} ← expected: {1}": "[slnx-auto-convert] dotnet.defaultSolution の保存値（実効）: {0} ← 期待: {1}",
+  "[slnx-auto-convert] Effective value differs from expected. User settings may override, or Unity may have patched again. {0}": "[slnx-auto-convert] 実効値が期待と異なります。ユーザー設定の上書き、または Unity がまだパッチした可能性があります。{0}",
+  "[slnx-auto-convert] Created {0} to suppress Unity .vscode auto-patch.": "[slnx-auto-convert] Unity の .vscode 自動パッチ抑止のため {0} を作成しました",
+  "[slnx-auto-convert] {0} already exists.": "[slnx-auto-convert] {0} は既にあります",
+  "Placed a marker to disable Unity .vscode auto-patch ({0}).": "Unity の .vscode 自動パッチを無効化するマーカーを置きました（{0}）。",
+  "{0} already exists.": "既に {0} があります。",
+  "[slnx-auto-convert] Converting: {0}": "[slnx-auto-convert] 変換開始: {0}",
+  "[slnx-auto-convert] Done ({0} projects). Removed .slnx and updated dotnet.defaultSolution.": "[slnx-auto-convert] 完了（{0} プロジェクト）。.slnx を削除し dotnet.defaultSolution を更新しました。",
+  "[slnx-auto-convert] Error: {0}": "[slnx-auto-convert] エラー: {0}",
+  "SLNX conversion failed: {0}": "SLNX 変換に失敗: {0}",
+  "No projects found in {0}": "プロジェクトが見つかりません: {0}",
+  "No workspace folders are open.": "ワークスペースフォルダがありません。",
+  "Created .vscode/.vstupatchdisable in {0} place(s). Unity settings auto-patch stops.": ".vscode/.vstupatchdisable を {0} か所に作成しました（Unity の settings 自動パッチが止まります）。",
+  "All folders already have .vstupatchdisable.": "全フォルダに既に .vstupatchdisable があります。"
+}

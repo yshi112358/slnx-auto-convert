@@ -1,0 +1,10 @@
+{
+  "extension.displayName": "SLNX auto-convert",
+  "extension.description": "`.slnx` 生成時に拡張機能内で `.sln` へ変換し `.slnx` を削除、`dotnet.defaultSolution` を更新します（Python 不要）。",
+  "command.convertWorkspace.title": "SLNX: ワークスペース内の .slnx を変換",
+  "command.disableUnityVsCodePatch.title": "SLNX: Unity の .vscode 自動パッチを無効化 (.vstupatchdisable)",
+  "config.title": "SLNX Auto Convert",
+  "config.debounceMs.description": "`.slnx` の create/change イベントをまとめる待ち時間（ミリ秒）。",
+  "config.watchEnabled.description": "ファイル監視による自動変換を有効にする。",
+  "config.autoCreateVstuPatchDisable.description": "変換の前に `.vscode/.vstupatchdisable` が無ければ作成する（Unity の settings 等の自動パッチを抑止）。"
+}

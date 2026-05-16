@@ -2,6 +2,14 @@ import * as fs from "fs";
 import * as path from "path";
 import { v5 as uuidv5 } from "uuid";
 
+/** Thrown when `.slnx` contains no project entries (localized in the extension host). */
+export class NoProjectsInSlnxError extends Error {
+  constructor(public readonly slnxAbsolutePath: string) {
+    super("NoProjectsInSlnxError");
+    this.name = "NoProjectsInSlnxError";
+  }
+}
+
 /** SDK スタイルの C# プロジェクト（Unity の .csproj と整合）— Python 版と同一 */
 const CSHARP_PROJECT_TYPE_GUID =
   "{9A19103F-16F7-4668-BE54-9A1E7A4F7556}";
@@ -85,7 +93,7 @@ export function convertSlnxToSln(
   const content = fs.readFileSync(slnxAbsolutePath, "utf8");
   const projects = collectProjects(content);
   if (projects.length === 0) {
-    throw new Error(`プロジェクトが見つかりません: ${slnxAbsolutePath}`);
+    throw new NoProjectsInSlnxError(slnxAbsolutePath);
   }
   const body = buildSlnLines(projects).join("\r\n");
   fs.writeFileSync(slnAbsolutePath, body, "utf8");
