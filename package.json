@@ -1,0 +1,64 @@
+{
+  "name": "slnx-auto-convert",
+  "displayName": "SLNX auto-convert",
+  "description": ".slnx 生成時に拡張機能内で .sln へ変換し .slnx を削除、dotnet.defaultSolution を更新します（Python 不要）。",
+  "version": "0.1.0",
+  "publisher": "local",
+  "icon": "images/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/*.csproj"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "slnx-auto-convert.convertWorkspace",
+        "title": "SLNX: ワークスペース内の .slnx を変換"
+      },
+      {
+        "command": "slnx-auto-convert.disableUnityVsCodePatch",
+        "title": "SLNX: Unity の .vscode 自動パッチを無効化 (.vstupatchdisable)"
+      }
+    ],
+    "configuration": {
+      "title": "SLNX Auto Convert",
+      "properties": {
+        "slnxAutoConvert.debounceMs": {
+          "type": "number",
+          "default": 800,
+          "minimum": 0,
+          "description": ".slnx の create/change イベントをまとめる待ち時間（ミリ秒）"
+        },
+        "slnxAutoConvert.watchEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "ファイル監視による自動変換を有効にする"
+        },
+        "slnxAutoConvert.autoCreateVstuPatchDisable": {
+          "type": "boolean",
+          "default": true,
+          "description": "変換の前に .vscode/.vstupatchdisable が無ければ作成する（Unity の settings 等の自動パッチを抑止）"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "uuid": "^11.1.1"
+  }
+}
